@@ -3,29 +3,21 @@
 # The only one that needs changing is the assembler
 # rule, as we use nasm instead of GNU as.
 
-SOURCES=src/boot.o src/main.o
-SOURCE_ASM=src/boot.s
-SOURCES_GCC=src/main.c
 
-CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -march=i386
-LDFLAGS=-Tlink.ld
-ASFLAGS=-felf32
 
-all: build asm link $(SOURCES)
+all: build asm link
 
 clean:
-	-rm src/*.o kernel
+	-rm src/*.o src/*.bin
 
 
 link:
-	ld $(LDFLAGS) -o kernel $(SOURCES)
+	i686-elf-gcc -T src/linker.ld -o src/guidance.bin -ffreestanding -O2 -nostdlib src/boot.o src/kernel.o -lgcc
 
 
 asm:
-	nasm $(ASFLAGS) $(SOURCE_ASM) $<
+	i686-elf-as src/boot.s -o src/boot.o $<
 
-debug:
-	ls
 
 build:
-	gcc -c $(CFLAGS) -o src/main.o $(SOURCES_GCC)
+	i686-elf-gcc -c src/kernel.c -o src/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
