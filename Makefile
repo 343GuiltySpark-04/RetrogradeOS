@@ -1,6 +1,6 @@
 
 
-all: build headers iso clean
+all: build headers iso
 
 
 build:
