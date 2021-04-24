@@ -5,7 +5,7 @@
 
 
 
-all: build asm link
+all: build asm link test
 
 clean:
 	-rm src/*.o src/*.bin
@@ -21,3 +21,7 @@ asm:
 
 build:
 	i686-elf-gcc -c src/kernel.c -o src/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
+
+test:
+	./test.sh
