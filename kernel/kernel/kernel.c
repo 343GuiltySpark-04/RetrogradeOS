@@ -5,4 +5,5 @@
 void kernel_main(void) {
 	terminal_initialize();
 	printf("GUIDANCE SYSTEMS: CHECK!\n");
+    printf("STARTING PRE-LAUNCH CHECK....\n");
 }
