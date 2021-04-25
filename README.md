@@ -12,7 +12,7 @@ you'll also need qemu-i686 or bochs (i haven't got it working in it yet though)
 
 then run `make`
 
-to run the OS use `./qemu.sh` or `qemu-debug.sh` to and `gdb --symbol=<pathtofolder>/guidance.sym` if your debugging the default port is `17` the old QOTD port (easy to remember)
+to run the OS use `./qemu.sh` or `qemu-debug.sh` to and `gdb --symbol=<pathtofolder>/guidance.sym` if your debugging the default port is `localhost:17` the old QOTD port (easy to remember)
 
 
 # Credits And Thanks
