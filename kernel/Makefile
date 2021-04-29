@@ -63,6 +63,7 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
 .S.o:
+	ls
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 	#nasm -felf32 -MD -o$(ARCHDIR)/irq.o $(ARCHDIR)/irq.S
 
