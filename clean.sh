@@ -9,4 +9,4 @@ done
 rm -rf sysroot
 rm -rf isodir
 rm -rf retrogradeOS.iso
-rm guidance.sym
+rm -f  guidance.sym

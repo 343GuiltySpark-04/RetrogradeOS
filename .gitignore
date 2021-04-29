@@ -22,6 +22,7 @@
 *.a
 *.la
 *.lo
+sysroot/*
 
 # Shared objects (inc. Windows DLLs)
 *.dll
@@ -54,3 +55,5 @@ Mkfile.old
 dkms.conf
 
 .vscode
+
+gcc-9.3.0/*
