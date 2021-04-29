@@ -1,11 +1,14 @@
 #include "IDT.c"
 
+
+
+
 void irq0_handler(void) {
           outb(0x20, 0x20); //EOI
 }
  
 void irq1_handler(void) {
-	  outb(0x20, 0x20); //EOI
+	     outb(0x20, 0x20); //EOI
 }
  
 void irq2_handler(void) {
@@ -71,3 +74,4 @@ void irq15_handler(void) {
           outb(0xA0, 0x20);
           outb(0x20, 0x20); //EOI
 }
+

@@ -266,7 +266,7 @@ _start:
 	C++ features such as global constructors and exceptions will require
 	runtime support to work as well.
 	*/
-	call idt_init
+	lidt (load_idt)
 	lgdt (gdt_desc) # load GDT
 	call _init
  
