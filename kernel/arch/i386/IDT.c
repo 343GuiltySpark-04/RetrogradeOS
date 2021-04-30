@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "outb.h"
+#include <kernel/outb.h>
 #include <kernel/IDT.h>
 
 

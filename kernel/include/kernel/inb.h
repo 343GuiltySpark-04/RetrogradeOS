@@ -1,5 +1,5 @@
-#ifndef INB
-#define INB
+#ifndef _INB
+#define _INB
 
 #include <stdint.h>
 

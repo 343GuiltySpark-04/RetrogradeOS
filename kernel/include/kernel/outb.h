@@ -1,5 +1,5 @@
-#ifndef OUTB
-#define OUTB
+#ifndef _OUTB
+#define _OUTB
 
 #include <stdint.h>
 

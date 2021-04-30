@@ -1,4 +1,4 @@
-#include "outb.h"
+#include <kernel/outb.h>
 #include <stdio.h>
 
 
