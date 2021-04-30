@@ -1,9 +1,10 @@
-#include "IDT.c"
-
+#include "outb.h"
+#include <stdio.h>
 
 
 
 void irq0_handler(void) {
+        printf("test");
           outb(0x20, 0x20); //EOI
 }
  
