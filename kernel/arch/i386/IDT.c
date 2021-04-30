@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "outb.h"
-
+#include <kernel/IDT.h>
 
 
 
