@@ -78,7 +78,7 @@ install-headers:
 
 install-kernel: guidance.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	i686-linux-gnu-objcopy -v  --only-keep-debug guidance.kernel ../guidance.sym
+	i686-linux-gnu-objcopy -v  guidance.kernel ../guidance.sym
 	cp guidance.kernel $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)
