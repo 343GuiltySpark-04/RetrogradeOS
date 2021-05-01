@@ -169,9 +169,8 @@ irq15:
   iret
 
 load_idt:
-  movl -4(%esp), %edx
+  movl 4(%esp), %edx
   lidt (%edx)
-  sti
   ret
 
 
@@ -271,8 +270,8 @@ _start:
 	runtime support to work as well.
 	*/
   cli
+  call load_idt
   call idt_init
-  call gdt_main
 	lgdt (gdt_desc) # load GDT
   sti
 	call _init
