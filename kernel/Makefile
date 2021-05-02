@@ -64,6 +64,7 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 
 .S.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
+	nasm -felf32 -g $(ARCHDIR)/boot.asm
 
 clean:
 	rm -f guidance.kernel

@@ -19,3 +19,4 @@ to run the OS use `./qemu.sh` or `qemu-debug.sh` to and `gdb --symbol=<pathtofol
 
 An Extremely Helpful Resource Couldn't Have Done it Without Them:
 https://wiki.osdev.org/Main_Page 
+And to https://github.com/stephengrice For letting me use his kernel as a base!
