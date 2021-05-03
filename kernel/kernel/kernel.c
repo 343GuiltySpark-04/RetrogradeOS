@@ -19,14 +19,16 @@
 #define KEYBOARD_STATUS_PORT 0x64
 
 #define COMMAND_BUFFER_SIZE 100
-#define PROMPT "pkos> "
-#define PROMPT_LENGTH 6
-
+#define PROMPT "RetrogradeOS#>	"
+#define PROMPT_LENGTH 15
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
 #include <stdbool.h>
-#include<stdio.h>
+#include <stdio.h>
+#include <kernel/tty.h>
+#include <stdlib.h>
+#include <kernel/prim_wait.h>
 
 // ----- External functions -----
 extern void print_char_with_asm(char c, int row, int col);
@@ -34,19 +36,21 @@ extern void load_gdt();
 extern void keyboard_handler();
 extern char ioport_in(unsigned short port);
 extern void ioport_out(unsigned short port, unsigned char data);
-extern void load_idt(unsigned int* idt_address);
+extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
 
 // ----- Structs -----
-struct IDT_pointer {
+struct IDT_pointer
+{
 	unsigned short limit;
 	unsigned int base;
 } __attribute__((packed));
-struct IDT_entry {
+struct IDT_entry
+{
 	unsigned short offset_lowerbits; // 16 bits
-	unsigned short selector; // 16 bits
-	unsigned char zero; // 8 bits
-	unsigned char type_attr; // 8 bits
+	unsigned short selector;		 // 16 bits
+	unsigned char zero;				 // 8 bits
+	unsigned char type_attr;		 // 8 bits
 	unsigned short offset_upperbits; // 16 bits
 } __attribute__((packed));
 
@@ -58,46 +62,59 @@ int cursor_col = 0;
 char command_buffer[COMMAND_BUFFER_SIZE];
 int command_len = 0;
 
-void disable_cursor() {
+void disable_cursor()
+{
 	ioport_out(0x3D4, 0x0A);
 	ioport_out(0x3D5, 0x20);
 }
 
-bool streq(char* string1, int str1len, char* string2, int str2len) {
-	if (str1len != str2len) return false;
-	for (int i = 0; i < str1len; i++) {
-		if (string1[i] != string2[i]) return false;
+bool streq(char *string1, int str1len, char *string2, int str2len)
+{
+	if (str1len != str2len)
+		return false;
+	for (int i = 0; i < str1len; i++)
+	{
+		if (string1[i] != string2[i])
+			return false;
 	}
 	return true;
 }
 
-void println(char* string, int len) {
+void println(char *string, int len)
+{
 	print(string, len);
 	cursor_row++;
 }
 
-void print(char* string, int len) {
-	for (int i = 0; i < len; i++) {
+void print(char *string, int len)
+{
+	for (int i = 0; i < len; i++)
+	{
 		printchar(string[i], cursor_row, cursor_col);
 		cursor_col++;
 	}
 }
 
-void printchar(char c, int row, int col) {
+void printchar(char c, int row, int col)
+{
 	// OFFSET = (ROW * 80) + COL
-	char* offset = (char*) (VIDMEM + 2*((row * COLS) + col));
+	char *offset = (char *)(VIDMEM + 2 * ((row * COLS) + col));
 	*offset = c;
 }
 
-void clear_screen() {
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
+void clear_screen()
+{
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLS; j++)
+		{
 			printchar(' ', i, j);
 		}
 	}
 }
 
-void init_idt() {
+void init_idt()
+{
 	// Get the address of the keyboard_handler code in kernel.asm as a number
 	unsigned int offset = (unsigned int)keyboard_handler;
 	// Populate the first entry of the IDT
@@ -110,17 +127,17 @@ void init_idt() {
 	IDT[0x21].offset_upperbits = (offset & 0xFFFF0000) >> 16;
 	// Program the PICs - Programmable Interrupt Controllers
 	// Background:
-		// In modern architectures, the PIC is not a separate chip.
-		// It is emulated in the CPU for backwards compatability.
-		// The APIC (Advanced Programmable Interrupt Controller)
-		// is the new version of the PIC that is integrated into the CPU.
-		// Default vector offset for PIC is 8
-		// This maps IRQ0 to interrupt 8, IRQ1 to interrupt 9, etc.
-		// This is a problem. The CPU reserves the first 32 interrupts for
-		// CPU exceptions such as divide by 0, etc.
-		// In programming the PICs, we move this offset to 0x2 (32) so that
-		// we can handle all interrupts coming to the PICs without overlapping
-		// with any CPU exceptions.
+	// In modern architectures, the PIC is not a separate chip.
+	// It is emulated in the CPU for backwards compatability.
+	// The APIC (Advanced Programmable Interrupt Controller)
+	// is the new version of the PIC that is integrated into the CPU.
+	// Default vector offset for PIC is 8
+	// This maps IRQ0 to interrupt 8, IRQ1 to interrupt 9, etc.
+	// This is a problem. The CPU reserves the first 32 interrupts for
+	// CPU exceptions such as divide by 0, etc.
+	// In programming the PICs, we move this offset to 0x2 (32) so that
+	// we can handle all interrupts coming to the PICs without overlapping
+	// with any CPU exceptions.
 
 	// Send ICWs - Initialization Command Words
 	// PIC1: IO Port 0x20 (command), 0xA0 (data)
@@ -160,55 +177,75 @@ void init_idt() {
 	// which is all we need to do to make it active.
 	struct IDT_pointer idt_ptr;
 	idt_ptr.limit = (sizeof(struct IDT_entry) * IDT_SIZE) - 1;
-	idt_ptr.base = (unsigned int) &IDT;
+	idt_ptr.base = (unsigned int)&IDT;
 	// Now load this IDT
 	load_idt(&idt_ptr);
 }
 
-void kb_init() {
+void kb_init()
+{
 	// 0xFD = 1111 1101 in binary. enables only IRQ1
 	// Why IRQ1? Remember, IRQ0 exists, it's 0-based
 	ioport_out(PIC1_DATA_PORT, 0xFD);
 }
 
-void handle_keyboard_interrupt() {
+void handle_keyboard_interrupt()
+{
 	// Write end of interrupt (EOI)
 	ioport_out(PIC1_COMMAND_PORT, 0x20);
 
 	unsigned char status = ioport_in(KEYBOARD_STATUS_PORT);
 	// Lowest bit of status will be set if buffer not empty
 	// (thanks mkeykernel)
-	if (status & 0x1) {
+	if (status & 0x1)
+	{
 		char keycode = ioport_in(KEYBOARD_DATA_PORT);
-		if (keycode < 0 || keycode >= 128) return;
-		if (keycode == 28) {
+		if (keycode < 0 || keycode >= 128)
+			return;
+		if (keycode == 28)
+		{
 			// ENTER : Newline
 			cursor_row++;
 			cursor_col = 0;
 			// Handle command
-			if (streq(command_buffer, command_len, "ls", 2)) {
+			if (streq(command_buffer, command_len, "ls", 2))
+			{
 				println("Filesystem not yet implemented.", 31);
-			} else if (streq(command_buffer, command_len, "clear", 5)) {
+			}
+			else if (streq(command_buffer, command_len, "clear", 5))
+			{
 				clear_screen();
 				cursor_row = 0;
-			} else if (command_len < 1) {
+			}
+			else if (command_len < 1)
+			{
 				// do nothing
-			} else {
+			}
+
+			else
+			{
 				print("Command not found: ", 19);
 				println(command_buffer, command_len);
 			}
 			command_len = 0;
 			print_prompt();
-		} else if (keycode == 14) {
+		}
+		else if (keycode == 14)
+		{
 			// BACKSPACE: Move back one unless on prompt
-			if (cursor_col > PROMPT_LENGTH) {
+			if (cursor_col > PROMPT_LENGTH)
+			{
 				print_char_with_asm(' ', cursor_row, --cursor_col);
 			}
-		} else {
-			if (command_len >= COMMAND_BUFFER_SIZE) return;
+		}
+		else
+		{
+			if (command_len >= COMMAND_BUFFER_SIZE)
+				return;
 			command_buffer[command_len++] = keyboard_map[keycode];
 			printchar(keyboard_map[keycode], cursor_row, cursor_col++);
-			if (cursor_col >= COLS) {
+			if (cursor_col >= COLS)
+			{
 				cursor_col = cursor_col % COLS;
 				cursor_row++;
 			}
@@ -216,30 +253,27 @@ void handle_keyboard_interrupt() {
 	}
 }
 
-void print_prompt() {
+void print_prompt()
+{
 	cursor_col = 0;
 	print(PROMPT, PROMPT_LENGTH);
 	cursor_col = PROMPT_LENGTH;
 }
 
-void print_message() {
+void print_message()
+{
 	// Fill the screen with 'x'
-	int i, j;
-	for (i = 0; i < COLS; i++) {
-		for (j = 0; j < ROWS; j++) {
-			if (j < 4) {
-				print_char_with_asm('*',j,i);
-			} else {
-				print_char_with_asm(' ',j,i);
-			}
-		}
-	}
-	print("-PKOS-", 6);
+	print("Welcome To RetrogradeOS", 23);
 	cursor_row = 4;
 }
 
 // ----- Entry point -----
-void main() {
+void main()
+{
+	terminal_initialize();
+	printf("GUIDANCE SYSTEM: CHECK!");
+	prim_wait(5);
+	clear_screen();
 	print_message();
 	print_prompt();
 	disable_cursor();
@@ -247,5 +281,6 @@ void main() {
 	kb_init();
 	enable_interrupts();
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
-	while(1);
+	while (1)
+		;
 }
