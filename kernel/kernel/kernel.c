@@ -29,6 +29,7 @@
 #include <kernel/tty.h>
 #include <stdlib.h>
 #include <kernel/prim_wait.h>
+#include <kernel/check_sti.h>
 
 // ----- External functions -----
 extern void print_char_with_asm(char c, int row, int col);
@@ -267,19 +268,50 @@ void print_message()
 	cursor_row = 4;
 }
 
+void interupt_boot_test()
+{
+
+	bool interupt_check = are_interrupts_enabled();
+
+	if (interupt_check == true)
+	{
+
+		return true;
+	}
+	else if (interupt_check == false)
+	{
+		return false;
+	}
+}
+
 // ----- Entry point -----
 void main()
 {
 	terminal_initialize();
-	printf("GUIDANCE SYSTEM: CHECK!");
-	prim_wait(5);
-	clear_screen();
-	print_message();
-	print_prompt();
+
 	disable_cursor();
 	init_idt();
 	kb_init();
 	enable_interrupts();
+
+	if (interupt_boot_test == false)
+	{
+
+		print("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
+
+		abort();
+	}
+	else
+	{
+
+		print("INTERRUPT SYSTEM: CHECK!", 24);
+	}
+	printf("GUIDANCE SYSTEM: CHECK!");
+
+	prim_wait(5);
+	clear_screen();
+	print_message();
+	print_prompt();
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
 	while (1)
 		;
