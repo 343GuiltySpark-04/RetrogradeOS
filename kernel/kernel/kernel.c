@@ -268,7 +268,7 @@ void print_message()
 	cursor_row = 4;
 }
 
-void interupt_boot_test()
+bool interupt_boot_test()
 {
 
 	bool interupt_check = are_interrupts_enabled();
