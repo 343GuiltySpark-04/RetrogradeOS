@@ -293,22 +293,19 @@ void main()
 	init_idt();
 	kb_init();
 	enable_interrupts();
+	bool interupt_test = interupt_boot_test();
 
-	if (interupt_boot_test == false)
+	if (interupt_test == false)
 	{
 
 		print("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
 
 		abort();
 	}
-	else
-	{
 
-		print("INTERRUPT SYSTEM: CHECK!", 24);
-	}
-	printf("GUIDANCE SYSTEM: CHECK!");
+	/* prim_wait(1000);
+	currently not working right */
 
-	prim_wait(5);
 	clear_screen();
 	print_message();
 	print_prompt();
