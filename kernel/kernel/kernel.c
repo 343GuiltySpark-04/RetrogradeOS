@@ -40,6 +40,9 @@ extern char ioport_in(unsigned short port);
 extern void ioport_out(unsigned short port, unsigned char data);
 extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
+// This should go outside any function..
+extern void loadPageDirectory(unsigned int *);
+extern void enablePaging();
 
 // ----- Structs -----
 struct IDT_pointer
@@ -339,9 +342,6 @@ void main()
 	// attributes: supervisor level, read/write, present
 	page_directory[0] = ((unsigned int)first_page_table) | 3;
 
-	// This should go outside any function..
-	extern void loadPageDirectory(unsigned int *);
-	extern void enablePaging();
 	// And this inside a function
 	loadPageDirectory(page_directory);
 	enablePaging();
