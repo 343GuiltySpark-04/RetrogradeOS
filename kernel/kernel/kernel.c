@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <kernel/prim_wait.h>
 #include <kernel/check_sti.h>
+#include <stdint.h>
 
 // ----- External functions -----
 extern void print_char_with_asm(char c, int row, int col);
@@ -301,6 +302,20 @@ void main()
 		print("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
 
 		abort();
+	}
+
+	// Setup Paging
+
+	uint32_t page_directory[1024] __attribute__((aligned(4096)));
+
+	int i;
+	for (i = 0; i < 1024; i++)
+	{
+		// This sets the following flags to the pages:
+		//   Supervisor: Only kernel-mode can access them
+		//   Write Enabled: It can be both read from and written to
+		//   Not Present: The page table is not present
+		page_directory[i] = 0x00000002;
 	}
 
 	/* prim_wait(1000);
