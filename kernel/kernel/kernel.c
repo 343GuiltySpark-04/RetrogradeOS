@@ -287,24 +287,8 @@ bool interupt_boot_test()
 	}
 }
 
-// ----- Entry point -----
-void main()
+void paging()
 {
-	terminal_initialize();
-
-	disable_cursor();
-	init_idt();
-	kb_init();
-	enable_interrupts();
-	bool interupt_test = interupt_boot_test();
-
-	if (interupt_test == false)
-	{
-
-		print("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
-
-		abort();
-	}
 
 	// Create Paging Directory
 
@@ -344,6 +328,28 @@ void main()
 	// And this inside a function
 	loadPageDirectory(page_directory);
 	enablePaging();
+}
+
+// ----- Entry point -----
+void main()
+{
+	terminal_initialize();
+
+	disable_cursor();
+	init_idt();
+	kb_init();
+	enable_interrupts();
+	bool interupt_test = interupt_boot_test();
+
+	if (interupt_test == false)
+	{
+
+		print("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
+
+		abort();
+	}
+
+	//paging(); TODO: Fix Crash
 
 	/* prim_wait(1000);
 	currently not working right */
