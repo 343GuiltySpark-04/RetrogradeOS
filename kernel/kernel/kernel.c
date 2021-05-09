@@ -40,7 +40,6 @@ extern char ioport_in(unsigned short port);
 extern void ioport_out(unsigned short port, unsigned char data);
 extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
-// This should go outside any function..
 extern void loadPageDirectory(unsigned int *);
 extern void enablePaging();
 
