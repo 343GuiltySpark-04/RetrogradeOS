@@ -339,6 +339,13 @@ void main()
 	// attributes: supervisor level, read/write, present
 	page_directory[0] = ((unsigned int)first_page_table) | 3;
 
+	// This should go outside any function..
+	extern void loadPageDirectory(unsigned int *);
+	extern void enablePaging();
+	// And this inside a function
+	loadPageDirectory(page_directory);
+	enablePaging();
+
 	/* prim_wait(1000);
 	currently not working right */
 
