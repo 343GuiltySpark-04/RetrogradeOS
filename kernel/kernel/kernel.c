@@ -335,7 +335,7 @@ void main()
 		abort();
 	}
 
-	//paging();
+	paging();
 
 	/* prim_wait(1000);
 	currently not working right */
