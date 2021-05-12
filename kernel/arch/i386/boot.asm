@@ -17,12 +17,14 @@ global print_char_with_asm
 global load_gdt
 global load_idt
 global keyboard_handler
+global gp_handler
 global ioport_in
 global ioport_out
 global enable_interrupts
 
 extern main			; Defined in kernel.c
 extern handle_keyboard_interrupt
+extern catch_gp
 
 load_gdt:
 	lgdt [gdt_descriptor] ; from gdt.asm
@@ -43,6 +45,15 @@ keyboard_handler:
 	call handle_keyboard_interrupt
 	popad
 	iretd
+
+
+gp_handler:
+	pushad
+	cld
+	call catch_gp
+
+
+
 
 ioport_in:
 	mov edx, [esp + 4] ; PORT_TO_READ, 16 bits

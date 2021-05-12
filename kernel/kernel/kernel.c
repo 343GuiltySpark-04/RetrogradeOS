@@ -66,6 +66,8 @@ int command_len = 0;
 
 unsigned long *page_directory = (unsigned long *)0x9C000;
 
+bool emg_halt = false;
+
 void disable_cursor()
 {
 	ioport_out(0x3D4, 0x0A);
@@ -191,6 +193,23 @@ void kb_init()
 	// 0xFD = 1111 1101 in binary. enables only IRQ1
 	// Why IRQ1? Remember, IRQ0 exists, it's 0-based
 	ioport_out(PIC1_DATA_PORT, 0xFD);
+}
+
+void gp_init()
+{
+
+	ioport_out(PIC2_DATA_PORT, 0x109);
+}
+
+void catch_gp(){
+
+
+	print("KERNEL PANIC!: GENERAL PROTECTION EXETPION (TRIPLE FAULT) ABORT! ABORT!", 71);
+	emg_halt = true;
+	abort();
+
+
+
 }
 
 void handle_keyboard_interrupt()
@@ -324,6 +343,7 @@ void main()
 	disable_cursor();
 	init_idt();
 	kb_init();
+	gp_init();
 	enable_interrupts();
 	bool interupt_test = interupt_boot_test();
 
@@ -344,6 +364,18 @@ void main()
 	print_message();
 	print_prompt();
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
-	while (1)
+	while (1){
+
+		if (emg_halt == true){
+
+			abort();
+
+		}
+
+
+
+	}
+
+
 		;
 }
