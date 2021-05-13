@@ -31,6 +31,7 @@
 #include <kernel/prim_wait.h>
 #include <kernel/check_sti.h>
 #include <stdint.h>
+#include <kernel/outb.h>
 
 // ----- External functions -----
 extern void print_char_with_asm(char c, int row, int col);
@@ -40,6 +41,8 @@ extern char ioport_in(unsigned short port);
 extern void ioport_out(unsigned short port, unsigned char data);
 extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
+extern void halt();
+extern void reboot();
 
 // ----- Structs -----
 struct IDT_pointer
@@ -61,7 +64,7 @@ struct IDT_entry IDT[IDT_SIZE]; // This is our entire IDT. Room for 256 interrup
 int cursor_row = 0;
 int cursor_col = 0;
 
-char command_buffer[COMMAND_BUFFER_SIZE];
+char command_buffer[COMMAND_BUFFER_SIZE]; // TODO: Find a way to purge the buffer when the command is wrong.
 int command_len = 0;
 
 unsigned long *page_directory = (unsigned long *)0x9C000;
@@ -201,15 +204,11 @@ void gp_init()
 	ioport_out(PIC2_DATA_PORT, 0x109);
 }
 
-void catch_gp(){
-
+void catch_gp()
+{
 
 	print("KERNEL PANIC!: GENERAL PROTECTION EXETPION (TRIPLE FAULT) ABORT! ABORT!", 71);
 	emg_halt = true;
-	abort();
-
-
-
 }
 
 void handle_keyboard_interrupt()
@@ -235,11 +234,23 @@ void handle_keyboard_interrupt()
 			{
 				println("Filesystem not yet implemented.", 31);
 			}
-			else if (streq(command_buffer, command_len, "clear", 5))
+			else if (streq(command_buffer, command_len, "clear", 5) || streq(command_buffer, command_len, "cls", 3))
 			{
 				clear_screen();
 				cursor_row = 0;
 			}
+			else if (streq(command_buffer, command_len, "shutdown", 8))
+			{
+
+				print("WIP: not working yet.", 21);
+			}
+
+			else if (streq(command_buffer, command_len, "reboot", 6))
+			{
+
+				print("WIP: not working yet.", 21);
+			}
+
 			else if (command_len < 1)
 			{
 				// do nothing
@@ -364,18 +375,15 @@ void main()
 	print_message();
 	print_prompt();
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
-	while (1){
+	while (1)
+	{
 
-		if (emg_halt == true){
+		if (emg_halt == true)
+		{
 
 			abort();
-
 		}
-
-
-
 	}
 
-
-		;
+	;
 }

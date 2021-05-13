@@ -21,6 +21,9 @@ global gp_handler
 global ioport_in
 global ioport_out
 global enable_interrupts
+global halt
+global asm_loop
+
 
 extern main			; Defined in kernel.c
 extern handle_keyboard_interrupt
@@ -51,6 +54,15 @@ gp_handler:
 	pushad
 	cld
 	call catch_gp
+
+halt:
+	hlt ; So it can be used without inline asm.
+
+
+asm_loop:
+	jmp $ ; incase its ever needed.
+
+
 
 
 
