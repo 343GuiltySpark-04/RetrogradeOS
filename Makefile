@@ -1,6 +1,7 @@
 
 
-all: build headers iso
+all: clean build headers iso
+all-release: clean build-release headers iso
 
 
 build:
@@ -21,3 +22,7 @@ iso:
 
 clean:
 	./clean.sh
+
+build-release:
+	./build.sh
+	strip -v ./kernel/guidance.kernel
