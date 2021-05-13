@@ -10,3 +10,5 @@ rm -rf sysroot
 rm -rf isodir
 rm -rf retrogradeOS.iso
 rm -f  guidance.sym
+rm -rf release
+rm -rf *.tar*
