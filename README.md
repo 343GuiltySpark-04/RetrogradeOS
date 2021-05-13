@@ -1,6 +1,7 @@
 # RetrogradeOS
 A Orbital Reentry Themed OS built from the ground up in a orbital shipyard near you!
 
+**Note: The CMake branch is not working as i'm still implimenting CMake as the build system!**
 
 # Installation Instructons
 
