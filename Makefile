@@ -1,7 +1,7 @@
 
 
 all: clean build headers iso
-all-release: clean build-release headers iso
+release: clean build-release headers iso
 
 
 build:
