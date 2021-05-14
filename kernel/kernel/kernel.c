@@ -269,7 +269,7 @@ void handle_keyboard_interrupt()
 			// BACKSPACE: Move back one unless on prompt
 			if (cursor_col > PROMPT_LENGTH)
 			{
-				print_char_with_asm(' ', cursor_row, --cursor_col);
+				print_char_with_asm(' ', cursor_row, --cursor_col); //TODO: add a for loop to remove the char from the buffer.
 			}
 		}
 		else
