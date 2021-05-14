@@ -21,6 +21,9 @@
 #define COMMAND_BUFFER_SIZE 100
 #define PROMPT ":> "
 #define PROMPT_LENGTH 3
+//OS Information
+#define OS_VERSION "0.0.1"
+#define OS_VERSION_LENGTH 5
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
@@ -63,7 +66,6 @@ struct IDT_entry
 struct IDT_entry IDT[IDT_SIZE]; // This is our entire IDT. Room for 256 interrupts
 int cursor_row = 0;
 int cursor_col = 0;
-
 char command_buffer[COMMAND_BUFFER_SIZE]; // TODO: Find a way to purge the buffer when the command is wrong.
 int command_len = 0;
 
@@ -249,6 +251,12 @@ void handle_keyboard_interrupt()
 			{
 
 				println("WIP: not working yet.", 21);
+			}
+
+			else if (streq(command_buffer, command_len, "version", 7)){
+
+				println(OS_VERSION, OS_VERSION_LENGTH);
+
 			}
 
 			else if (command_len < 1)
