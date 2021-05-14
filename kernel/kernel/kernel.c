@@ -68,6 +68,7 @@ int cursor_row = 0;
 int cursor_col = 0;
 char command_buffer[COMMAND_BUFFER_SIZE]; // TODO: Find a way to purge the buffer when the command is wrong.
 int command_len = 0;
+const int print_offset = 3;
 
 unsigned long *page_directory = (unsigned long *)0x9C000;
 
@@ -105,6 +106,7 @@ void print(char *string, int len)
 		cursor_col++;
 	}
 }
+
 
 void printchar(char c, int row, int col)
 {
@@ -255,7 +257,12 @@ void handle_keyboard_interrupt()
 
 			else if (streq(command_buffer, command_len, "version", 7)){
 
-				println(OS_VERSION, OS_VERSION_LENGTH);
+			
+				cursor_col += print_offset;
+				print("OS ", 3);
+				print("Version: ", 9);
+				print(OS_VERSION, OS_VERSION_LENGTH);
+				cursor_row++;
 
 			}
 
