@@ -62,3 +62,4 @@ gcc-9.3.0/*
 isodir/*
 *.tar*
 release.sh
+release/*

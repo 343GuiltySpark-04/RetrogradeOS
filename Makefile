@@ -14,6 +14,8 @@ headers:
 	./headers.sh
 
 
+config:
+	./config.sh
 
 
 iso:
