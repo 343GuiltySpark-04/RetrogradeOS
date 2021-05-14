@@ -19,8 +19,8 @@
 #define KEYBOARD_STATUS_PORT 0x64
 
 #define COMMAND_BUFFER_SIZE 100
-#define PROMPT "RetrogradeOS#>	"
-#define PROMPT_LENGTH 15
+#define PROMPT ":> "
+#define PROMPT_LENGTH 3
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
@@ -242,13 +242,13 @@ void handle_keyboard_interrupt()
 			else if (streq(command_buffer, command_len, "shutdown", 8))
 			{
 
-				print("WIP: not working yet.", 21);
+				println("WIP: not working yet.", 21);
 			}
 
 			else if (streq(command_buffer, command_len, "reboot", 6))
 			{
 
-				print("WIP: not working yet.", 21);
+				println("WIP: not working yet.", 21);
 			}
 
 			else if (command_len < 1)
@@ -361,7 +361,7 @@ void main()
 	if (interupt_test == false)
 	{
 
-		print("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
+		println("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
 
 		abort();
 	}
