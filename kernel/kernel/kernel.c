@@ -22,8 +22,8 @@
 #define PROMPT ":> "
 #define PROMPT_LENGTH 3
 //OS Information
-#define OS_VERSION "0.0.1"
-#define OS_VERSION_LENGTH 5
+#define OS_VERSION "0.0.1b"
+#define OS_VERSION_LENGTH 6
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
