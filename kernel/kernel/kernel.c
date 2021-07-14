@@ -24,6 +24,8 @@
 //OS Information
 #define OS_VERSION "0.0.1b"
 #define OS_VERSION_LENGTH 6
+#define OS_NAME "RetrogradeOS"
+#define OS_NAME_LENGTH 12
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
@@ -255,7 +257,7 @@ void handle_keyboard_interrupt()
 				println("WIP: not working yet.", 21);
 			}
 
-			else if (streq(command_buffer, command_len, "version", 7)){
+			else if (streq(command_buffer, command_len, "uname -v", 8)){
 
 			
 				cursor_col += print_offset;
@@ -264,6 +266,15 @@ void handle_keyboard_interrupt()
 				print(OS_VERSION, OS_VERSION_LENGTH);
 				cursor_row++;
 
+			}
+
+			else if (streq(command_buffer, command_len, "uname -n", 8)){
+
+				cursor_col += print_offset;
+				print("OS ", 3);
+				print("Name: ", 6);
+				print(OS_NAME, OS_NAME_LENGTH);
+				cursor_row++;
 			}
 
 			else if (command_len < 1)
