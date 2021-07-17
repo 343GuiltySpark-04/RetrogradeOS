@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION = "v0.0.1c"
+
 mkdir -v ./release
 
 cp -v retrogradeOS.iso ./release

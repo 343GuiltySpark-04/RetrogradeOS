@@ -109,7 +109,6 @@ void print(char *string, int len)
 	}
 }
 
-
 void printchar(char c, int row, int col)
 {
 	// OFFSET = (ROW * 80) + COL
@@ -257,24 +256,16 @@ void handle_keyboard_interrupt()
 				println("WIP: not working yet.", 21);
 			}
 
-			else if (streq(command_buffer, command_len, "uname -v", 8)){
-
-			
-				cursor_col += print_offset;
-				print("OS ", 3);
-				print("Version: ", 9);
-				print(OS_VERSION, OS_VERSION_LENGTH);
-				cursor_row++;
-
-			}
-
-			else if (streq(command_buffer, command_len, "uname -n", 8)){
+			else if (streq(command_buffer, command_len, "info", 4))
+			{
 
 				cursor_col += print_offset;
 				print("OS ", 3);
 				print("Name: ", 6);
 				print(OS_NAME, OS_NAME_LENGTH);
 				cursor_row++;
+				print("Version: ", 9);
+				print(OS_VERSION, OS_VERSION_LENGTH);
 			}
 
 			else if (command_len < 1)
