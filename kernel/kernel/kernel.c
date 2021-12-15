@@ -237,7 +237,7 @@ void handle_keyboard_interrupt()
 			// Handle command
 			if (streq(command_buffer, command_len, "ls", 2))
 			{
-				println("Filesystem not yet implemented.", 31);
+				println("Coming soon to a HDD near you!", 30);
 			}
 			else if (streq(command_buffer, command_len, "clear", 5) || streq(command_buffer, command_len, "cls", 3))
 			{
@@ -246,8 +246,12 @@ void handle_keyboard_interrupt()
 			}
 			else if (streq(command_buffer, command_len, "shutdown", 8))
 			{
-
+				//will consider as a stopgap
+				//abort();
 				println("WIP: not working yet.", 21);
+				//hmmm
+				outb(0x2000, 0x604);
+
 			}
 
 			else if (streq(command_buffer, command_len, "reboot", 6))
@@ -264,8 +268,28 @@ void handle_keyboard_interrupt()
 				print("Name: ", 6);
 				print(OS_NAME, OS_NAME_LENGTH);
 				cursor_row++;
+				cursor_col = 0;
+				cursor_col += print_offset;
 				print("Version: ", 9);
 				print(OS_VERSION, OS_VERSION_LENGTH);
+				cursor_row++;
+			}
+
+			else if (streq(command_buffer, command_len, "help", 4)){
+
+				cursor_col += print_offset;
+				print("help", 4);
+				cursor_row++;
+				cursor_col -= 4;
+				print("clear ", 5);
+				cursor_col++;
+				print("(cls)", 5);
+				cursor_row++;
+				cursor_col -= 11;
+				print("info", 4);
+				cursor_row++;
+
+
 			}
 
 			else if (command_len < 1)
