@@ -48,8 +48,9 @@ extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
 extern void halt();
 extern void reboot();
-extern void loadPageDirectory();
+extern void loadPageDirectory(unsigned int*);
 extern void enablePaging();
+extern u32int endkernel;
 
 // ----- Structs -----
 struct IDT_pointer
@@ -358,6 +359,8 @@ bool interupt_boot_test()
 	}
 }
 
+
+//old code keeping until certin its useless
 /* void paging()
 {
 
@@ -386,6 +389,18 @@ bool interupt_boot_test()
 	write_cr3(page_directory);			// put that page directory address into CR3
 	write_cr0(read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
 } */
+
+
+
+void page_frame(){
+
+
+
+
+
+
+}
+
 
 void paging()
 {
@@ -419,6 +434,10 @@ void paging()
 
 	// attributes: supervisor level, read/write, present
 	page_directory[0] = ((unsigned int)first_page_table) | 3;
+
+	loadPageDirectory(page_directory);
+	enablePaging();
+
 }
 
 // ----- Entry point -----
@@ -443,8 +462,6 @@ void main()
 
 	//paging();
 
-	loadPageDirectory();
-	enablePaging();
 
 	/* prim_wait(1000);
 	currently not working right */
