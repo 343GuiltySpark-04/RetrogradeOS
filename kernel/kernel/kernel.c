@@ -48,6 +48,8 @@ extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
 extern void halt();
 extern void reboot();
+extern void loadPageDirectory();
+extern void enablePaging();
 
 // ----- Structs -----
 struct IDT_pointer
@@ -72,7 +74,7 @@ char command_buffer[COMMAND_BUFFER_SIZE]; // TODO: Find a way to purge the buffe
 int command_len = 0;
 const int print_offset = 3;
 
-unsigned long *page_directory = (unsigned long *)0x9C000;
+//unsigned long *page_directory = (unsigned long *)0x9C000;
 
 bool emg_halt = false;
 
@@ -251,7 +253,6 @@ void handle_keyboard_interrupt()
 				println("WIP: not working yet.", 21);
 				//hmmm
 				outb(0x2000, 0x604);
-
 			}
 
 			else if (streq(command_buffer, command_len, "reboot", 6))
@@ -275,7 +276,8 @@ void handle_keyboard_interrupt()
 				cursor_row++;
 			}
 
-			else if (streq(command_buffer, command_len, "help", 4)){
+			else if (streq(command_buffer, command_len, "help", 4))
+			{
 
 				cursor_col += print_offset;
 				print("help", 4);
@@ -288,8 +290,6 @@ void handle_keyboard_interrupt()
 				cursor_col -= 11;
 				print("info", 4);
 				cursor_row++;
-
-
 			}
 
 			else if (command_len < 1)
@@ -358,7 +358,7 @@ bool interupt_boot_test()
 	}
 }
 
-void paging()
+/* void paging()
 {
 
 	unsigned long *page_table = (unsigned long *)0x9D000; // the page table comes right after the page directory
@@ -385,6 +385,23 @@ void paging()
 	// write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions
 	write_cr3(page_directory);			// put that page directory address into CR3
 	write_cr0(read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
+} */
+
+void paging()
+{
+
+	u32int page_directory[1024] __attribute__((aligned(4096)));
+
+	//set each entry to not present
+	int i;
+	for (i = 0; i < 1024; i++)
+	{
+		// This sets the following flags to the pages:
+		//   Supervisor: Only kernel-mode can access them
+		//   Write Enabled: It can be both read from and written to
+		//   Not Present: The page table is not present
+		page_directory[i] = 0x00000002;
+	}
 }
 
 // ----- Entry point -----
@@ -407,7 +424,10 @@ void main()
 		abort();
 	}
 
-	paging();
+	//paging();
+
+	loadPageDirectory();
+	enablePaging();
 
 	/* prim_wait(1000);
 	currently not working right */
