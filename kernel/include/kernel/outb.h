@@ -1,7 +1,7 @@
 #ifndef _OUTB
 #define _OUTB
 
-#include <stdint.h>
+#include <common.h>
 
 static inline void outb(uint16_t port, uint8_t val)
 {

@@ -1,11 +1,11 @@
 #ifndef _INB
 #define _INB
 
-#include <stdint.h>
+#include <common.h>
 
-static inline uint8_t inb(uint16_t port)
+static inline u8int inb(u8int port)
 {
-    uint8_t ret;
+    u8int ret;
     asm volatile("inb %1, %0"
                  : "=a"(ret)
                  : "Nd"(port));

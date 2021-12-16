@@ -12,7 +12,7 @@ typedef          char   s8int;
 
 
 
-
+u8int inb(u16int port);
 
 
 
