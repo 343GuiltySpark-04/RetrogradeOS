@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-static inline void outb(uint16_t port, uint8_t val)
+void outb(u16int port, u8int val)
 {
     asm volatile("outb %0, %1"
                  :

@@ -11,7 +11,7 @@ typedef unsigned char   u8int;
 typedef          char   s8int;
 
 
-
+void outb(u16int port, u8int value);
 u8int inb(u16int port);
 
 
