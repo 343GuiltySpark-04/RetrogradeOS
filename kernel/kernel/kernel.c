@@ -77,6 +77,11 @@ const int print_offset = 3;
 
 //unsigned long *page_directory = (unsigned long *)0x9C000;
 
+
+//------Global typedefs--------
+
+
+
 bool emg_halt = false;
 
 void disable_cursor()
@@ -392,14 +397,7 @@ bool interupt_boot_test()
 
 
 
-void page_frame(){
 
-
-
-
-
-
-}
 
 
 void paging()
