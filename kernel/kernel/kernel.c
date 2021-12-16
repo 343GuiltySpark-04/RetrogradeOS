@@ -35,8 +35,8 @@
 #include <stdlib.h>
 #include <kernel/prim_wait.h>
 #include <kernel/check_sti.h>
-#include <stdint.h>
-#include <kernel/outb.h>
+#include <common.h>
+//#include <kernel/outb.h>
 
 // ----- External functions -----
 extern void print_char_with_asm(char c, int row, int col);
