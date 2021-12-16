@@ -73,8 +73,10 @@ int cursor_col = 0;
 char command_buffer[COMMAND_BUFFER_SIZE]; // TODO: Find a way to purge the buffer when the command is wrong.
 int command_len = 0;
 const int print_offset = 3;
+//yeet to defuck
 u32int page_directory[1024] __attribute__((aligned(4096)));
 
+// uncomment to defuck
 //unsigned long *page_directory = (unsigned long *)0x9C000;
 
 bool emg_halt = false;
@@ -361,6 +363,8 @@ bool interupt_boot_test()
 	}
 }
 
+
+// uncomment to defuck
 /* void paging()
 {
 
@@ -410,8 +414,10 @@ void main()
 		abort();
 	}
 
+	//uncomment to defuck
 	//paging();
 
+	// yeet to defuck
 	loadPageDirectory();
 	enablePaging();
 
