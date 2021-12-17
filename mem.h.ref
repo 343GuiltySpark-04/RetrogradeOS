@@ -1,0 +1,142 @@
+#ifndef __MEM_H
+#define __MEM_H
+
+#define KERNEL_BASE 0x10000	// kernel begins at 0x10000
+#define PGDIR_BASE 0x500000	// mapped at 5MB
+#define PGDIR_SIZE 0x1000	// 4KB in size
+#define MM_BASE (PGDIR_BASE + PGDIR_SIZE)	// memory management data base
+#define PGTAB_BASE 0x800000	// mapped at 8MB all page tables are mapped into the virtual address space for easy kernel use
+#define PGTAB_SIZE 0x400000	// 4MB in size
+#define PL0_STACKS_BASE 0xC00000	// 1,024 4KB PL0 stacks, 1 for each thread
+#define DEMAND_PAGED 0x1000000	// demand paged address is at 16MB (_must_ be 4MB-aligned)
+#define PADDR_LIMIT 0xBFFFFFFF	// physical (conventional) memory limit is at 3GB
+#define VADDR_LIMIT (PADDR_LIMIT + 1)	// allocable linear memory limit for all threads
+
+// special page values (not present); page tables are NEVER SWAPPED TO DISK, and neither is the page directory; NEITHER ARE PL0 STACKS
+// by: Frank Millea, Dec. 21, 2001, 8:45 PM
+// Hopefully this will be a somewhat cut and dry standard for the kernel's use of page table entries.
+// ------------------------------------------------------------------------------------------------------
+// [BITS 31:30]
+//	  |
+//	  |		 page type field
+//	  -------------------------------
+//	  00b --- page is alloc-mapped
+//	  01b --- page is file-mapped
+//	  10b --- page is swapped to disk
+//	  11b --- page is being fixed (if two threads from the same process access the same non-present location)
+//
+// [BITS 29:4]
+//		|
+//		|											(various)
+//		---------------------------------------------------------------------------------------------------------
+//		1. if page is alloc-mapped, this is reserved and should be 1. if page is free, this is all 0.
+//		2. if page is file-mapped, this is the _page_ location in the file to read the page in from.
+//		3. if page is swapped to disk, this is the _page_ location within the page file to read the page in from.
+//
+// [BIT 3]
+//	  |
+//	  |	 page ring field
+//	  ---------------------
+//	  0b --- ring 0 page
+//	  1b --- ring 3 page
+//
+// [BIT 2]
+//	  |
+//	  |	  block type field
+//	  -----------------------
+//	  0b --- start of a block
+//	  1b --- middle of block
+//	  note: this bit resides in the AVL field (bit 9), if present
+//
+// [BIT 1]
+//	  |
+//	  |												CR3 window field
+//	  ----------------------------------------------------------------------------------------------------------------------
+//	  0b --- for all normal purposes, this is reserved and should be 0.
+//	  1b --- if in a page directory, this tells the page fault handler that this 4MB block is part of a thread's CR3 window.
+//
+// [BIT 0]
+//	  |
+//	  |	 present bit
+//	  ----------------
+//	  0b --- always 0.
+// ------------------------------------------------------------------------------------------------------
+
+// - if bit 11 in a present page is set, that means it CAN NEVER be swapped
+// - if bit 10 in a present page is set, that means it CANNOT be swapped temporarily (meaning it's not completely done yet)
+
+#define NP_ALLOC_MAPPED 0x3FFFFFF0	// page is demand-mapped
+#define NP_CR3_WINDOW 0x00000002	// indicates that this page directory entry is part of a thread's CR3 window
+#define NP_BEING_FIXED 0xC0000000
+
+// segment descriptor structure
+typedef struct
+{
+	u_char limit0;
+	u_char limit1;
+	u_char base0;
+	u_char base1;
+	u_char base2;
+	u_short flags;
+	u_char base3;
+} __attribute__((packed)) seg_t;
+
+// interrupt gate structure
+typedef struct
+{
+	u_short offset0;
+	u_short code_sel;
+	u_short flags;
+	u_short offset1;
+} __attribute__((packed)) int_gate_t;
+
+// task state segment structure (one per CPU)
+typedef struct
+{
+	u_long link;
+	u_long esp0, ss0;
+	u_long esp1, ss1;
+	u_long esp2, ss2;
+	u_long cr3;
+	u_long eip;
+	u_long eflags;
+	u_long eax, ecx, edx, ebx;
+	u_long esp, ebp, esi, edi;
+	u_long es, cs, ss, ds, fs, gs;
+	u_long ldt;
+	u_short trap;
+	u_short iopm_offset;
+	u_char iopm[8192];
+} __attribute__((packed)) tss_t;
+
+// memory management structure (one per address space)
+typedef struct
+{
+	u_long superpage_bitmap[32];	// bitmap of which superpages have free pages
+	short superpage_count[1024];	// number of free pages in the superpage
+	char padding[1920];	// padding to align the page bitmap on a page boundary
+	u_long page_bitmap[32768];	// bitmap of which pages are free
+} mm_t;
+
+// externals
+extern seg_t *gdt;
+extern seg_t *gdt_cpu_descs;
+extern int_gate_t *idt;
+extern u_long kernel_size;
+extern u_long kernel_stack;
+extern u_short adata_sel;
+extern u_short acode_sel;
+extern u_short kdata_sel;
+extern u_short kcode_sel;
+
+// function prototypes
+void mem_init();
+u_long memprobe();
+u_long get_free_pmem_page();
+void add_free_pmem_page(u_long x);
+void create_kas();
+void *malloc(u_long n);
+u_long dalloc(void *mem_block);
+inline void invlpg(u_long m);
+
+#endif
