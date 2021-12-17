@@ -10,4 +10,4 @@ goto launch
 :launch
 cls
 color 07
-qemu-system-i386 -cdrom retrogradeOS.iso
+qemu-system-i386 -serial file:serial.log -cdrom retrogradeOS.iso

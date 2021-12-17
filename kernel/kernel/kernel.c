@@ -26,6 +26,8 @@
 #define OS_VERSION_LENGTH 6
 #define OS_NAME "RetrogradeOS"
 #define OS_NAME_LENGTH 12
+// Serial Ports
+#define PORT_COM1 0x3f8
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
@@ -48,7 +50,7 @@ extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
 extern void halt();
 extern void reboot();
-extern void loadPageDirectory(unsigned int*);
+extern void loadPageDirectory(unsigned int *);
 extern void enablePaging();
 extern u32int endkernel;
 
@@ -77,10 +79,7 @@ const int print_offset = 3;
 
 //unsigned long *page_directory = (unsigned long *)0x9C000;
 
-
 //------Global typedefs--------
-
-
 
 bool emg_halt = false;
 
@@ -224,6 +223,30 @@ void catch_gp()
 	emg_halt = true;
 }
 
+static int init_serial()
+{
+	outb(PORT_COM1 + 1, 0x00); // Disable all interrupts
+	outb(PORT_COM1 + 3, 0x80); // Enable DLAB (set baud rate divisor)
+	outb(PORT_COM1 + 0, 0x03); // Set divisor to 3 (lo byte) 38400 baud
+	outb(PORT_COM1 + 1, 0x00); //                  (hi byte)
+	outb(PORT_COM1 + 3, 0x03); // 8 bits, no parity, one stop bit
+	outb(PORT_COM1 + 2, 0xC7); // Enable FIFO, clear them, with 14-byte threshold
+	outb(PORT_COM1 + 4, 0x0B); // IRQs enabled, RTS/DSR set
+	outb(PORT_COM1 + 4, 0x1E); // Set in loopback mode, test the serial chip
+	outb(PORT_COM1 + 0, 0xAE); // Test serial chip (send byte 0xAE and check if serial returns same byte)
+
+	// Check if serial is faulty (i.e: not same byte as sent)
+	if (inb(PORT_COM1 + 0) != 0xAE)
+	{
+		return 1;
+	}
+
+	// If serial is not faulty set it in normal operation mode
+	// (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
+	outb(PORT_COM1 + 4, 0x0F);
+	return 0;
+}
+
 void handle_keyboard_interrupt()
 {
 	// Write end of interrupt (EOI)
@@ -364,7 +387,6 @@ bool interupt_boot_test()
 	}
 }
 
-
 //old code keeping until certin its useless
 /* void paging()
 {
@@ -394,11 +416,6 @@ bool interupt_boot_test()
 	write_cr3(page_directory);			// put that page directory address into CR3
 	write_cr0(read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
 } */
-
-
-
-
-
 
 void paging()
 {
@@ -435,7 +452,6 @@ void paging()
 
 	loadPageDirectory(page_directory);
 	enablePaging();
-
 }
 
 // ----- Entry point -----
@@ -449,6 +465,7 @@ void main()
 	gp_init();
 	enable_interrupts();
 	bool interupt_test = interupt_boot_test();
+	init_serial();
 
 	if (interupt_test == false)
 	{
@@ -459,7 +476,6 @@ void main()
 	}
 
 	//paging();
-
 
 	/* prim_wait(1000);
 	currently not working right */
