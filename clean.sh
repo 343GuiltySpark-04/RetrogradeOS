@@ -12,3 +12,4 @@ rm -rf retrogradeOS.iso
 rm -f  guidance.sym
 rm -rf release
 rm -rf *.tar*
+rm -f *.log

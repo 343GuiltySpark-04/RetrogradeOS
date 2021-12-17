@@ -81,7 +81,9 @@ const int print_offset = 3;
 
 //------Global typedefs--------
 
+// Booleans
 bool emg_halt = false;
+// ---------------
 
 void disable_cursor()
 {
@@ -223,6 +225,8 @@ void catch_gp()
 	emg_halt = true;
 }
 
+// Serial port code
+
 static int init_serial()
 {
 	outb(PORT_COM1 + 1, 0x00); // Disable all interrupts
@@ -247,46 +251,37 @@ static int init_serial()
 	return 0;
 }
 
-int serial_received(){
-
+int serial_received()
+{
 
 	return inb(PORT_COM1 + 5) & 1;
-
-
-
-
 }
 
-char read_serial(){
+char read_serial()
+{
 
-	while (serial_received() == 0);
-	
+	while (serial_received() == 0)
+		;
+
 	return inb(PORT_COM1);
-	
-
-
-
 }
 
-
-int is_transmit_empty(){
+int is_transmit_empty()
+{
 
 	return inb(PORT_COM1 + 5) & 0x20;
-
-
-
 }
 
-void write_serial(char a){
+void write_serial(char a)
+{
 
-	while (is_transmit_empty() == 0);
+	while (is_transmit_empty() == 0)
+		;
 
 	outb(PORT_COM1, a);
-
-
-
 }
 
+// End of serial port code
 
 void handle_keyboard_interrupt()
 {
@@ -524,6 +519,7 @@ void main()
 	clear_screen();
 	print_message();
 	print_prompt();
+	write_serial('a');
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
 	while (1)
 	{
