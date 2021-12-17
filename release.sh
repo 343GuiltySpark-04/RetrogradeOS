@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION = "v0.0.1c"
+VERSION = "v0.0.2"
 
 mkdir -v ./release
 
