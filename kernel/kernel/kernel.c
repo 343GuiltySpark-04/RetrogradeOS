@@ -247,6 +247,47 @@ static int init_serial()
 	return 0;
 }
 
+int serial_received(){
+
+
+	return inb(PORT_COM1 + 5) & 1;
+
+
+
+
+}
+
+char read_serial(){
+
+	while (serial_received() == 0);
+	
+	return inb(PORT_COM1);
+	
+
+
+
+}
+
+
+int is_transmit_empty(){
+
+	return inb(PORT_COM1 + 5) & 0x20;
+
+
+
+}
+
+void write_serial(char a){
+
+	while (is_transmit_empty() == 0);
+
+	outb(PORT_COM1, a);
+
+
+
+}
+
+
 void handle_keyboard_interrupt()
 {
 	// Write end of interrupt (EOI)
