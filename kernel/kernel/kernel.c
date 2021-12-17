@@ -22,8 +22,8 @@
 #define PROMPT ":> "
 #define PROMPT_LENGTH 3
 //OS Information
-#define OS_VERSION "0.0.1c"
-#define OS_VERSION_LENGTH 6
+#define OS_VERSION "0.0.2"
+#define OS_VERSION_LENGTH 5
 #define OS_NAME "RetrogradeOS"
 #define OS_NAME_LENGTH 12
 // Serial Ports
@@ -334,6 +334,19 @@ void write_serial_COM2(char a)
 	outb(PORT_COM2, a);
 }
 
+void write_debug_code(char a, char b, char c)
+{
+
+	while (is_transmit_empty_COM1() == 0)
+		;
+
+	outb(PORT_COM1, '*');
+	outb(PORT_COM1, a);
+	outb(PORT_COM1, b);
+	outb(PORT_COM1, c);
+	outb(PORT_COM1, '*');
+}
+
 // End of serial port code
 
 void handle_keyboard_interrupt()
@@ -410,6 +423,17 @@ void handle_keyboard_interrupt()
 				cursor_row++;
 			}
 
+			else if (streq(command_buffer, command_len, "comcheck", 8))
+			{
+
+				cursor_col += print_offset;
+
+				print("Writing port check code to COM1.", 32);
+				cursor_row++;
+
+				write_debug_code('0', '0', '3');
+			}
+
 			else if (command_len < 1)
 			{
 				// do nothing
@@ -470,6 +494,7 @@ bool interupt_boot_test()
 
 		return true;
 	}
+
 	else if (interupt_check == false)
 	{
 		return false;
@@ -546,6 +571,8 @@ void paging()
 // ----- Entry point -----
 void main()
 {
+	init_serial();
+	write_debug_code('0', '0', '0');
 	terminal_initialize();
 
 	disable_cursor();
@@ -554,12 +581,13 @@ void main()
 	gp_init();
 	enable_interrupts();
 	bool interupt_test = interupt_boot_test();
-	init_serial();
 
 	if (interupt_test == false)
 	{
 
 		println("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
+
+		write_debug_code('0', '0', '2');
 
 		abort();
 	}
@@ -572,6 +600,7 @@ void main()
 	clear_screen();
 	print_message();
 	print_prompt();
+	write_debug_code('0', '0', '1');
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
 	while (1)
 	{
