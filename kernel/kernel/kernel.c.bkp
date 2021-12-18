@@ -22,8 +22,8 @@
 #define PROMPT ":> "
 #define PROMPT_LENGTH 3
 //OS Information
-#define OS_VERSION "0.0.1c"
-#define OS_VERSION_LENGTH 6
+#define OS_VERSION "0.0.2"
+#define OS_VERSION_LENGTH 5
 #define OS_NAME "RetrogradeOS"
 #define OS_NAME_LENGTH 12
 
@@ -36,6 +36,7 @@
 #include <kernel/prim_wait.h>
 #include <kernel/check_sti.h>
 #include <common.h>
+#include <kernel/serial_port_driver.h>
 //#include <kernel/outb.h>
 
 // ----- External functions -----
@@ -48,8 +49,9 @@ extern void load_idt(unsigned int *idt_address);
 extern void enable_interrupts();
 extern void halt();
 extern void reboot();
-extern void loadPageDirectory();
+extern void loadPageDirectory(unsigned int *);
 extern void enablePaging();
+extern u32int endkernel;
 
 // ----- Structs -----
 struct IDT_pointer
@@ -73,13 +75,14 @@ int cursor_col = 0;
 char command_buffer[COMMAND_BUFFER_SIZE]; // TODO: Find a way to purge the buffer when the command is wrong.
 int command_len = 0;
 const int print_offset = 3;
-//yeet to defuck
-u32int page_directory[1024] __attribute__((aligned(4096)));
 
-// uncomment to defuck
 //unsigned long *page_directory = (unsigned long *)0x9C000;
 
+//------Global typedefs--------
+
+// Booleans
 bool emg_halt = false;
+// ---------------
 
 void disable_cursor()
 {
@@ -256,7 +259,6 @@ void handle_keyboard_interrupt()
 				println("WIP: not working yet.", 21);
 				//hmmm
 				outb(0x2000, 0x604);
-
 			}
 
 			else if (streq(command_buffer, command_len, "reboot", 6))
@@ -280,7 +282,8 @@ void handle_keyboard_interrupt()
 				cursor_row++;
 			}
 
-			else if (streq(command_buffer, command_len, "help", 4)){
+			else if (streq(command_buffer, command_len, "help", 4))
+			{
 
 				cursor_col += print_offset;
 				print("help", 4);
@@ -293,8 +296,17 @@ void handle_keyboard_interrupt()
 				cursor_col -= 11;
 				print("info", 4);
 				cursor_row++;
+			}
 
+			else if (streq(command_buffer, command_len, "comcheck", 8))
+			{
 
+				cursor_col += print_offset;
+
+				print("Writing port check code to COM1.", 32);
+				cursor_row++;
+
+				write_debug_code('0', '0', '3');
 			}
 
 			else if (command_len < 1)
@@ -357,14 +369,14 @@ bool interupt_boot_test()
 
 		return true;
 	}
+
 	else if (interupt_check == false)
 	{
 		return false;
 	}
 }
 
-
-// uncomment to defuck
+//old code keeping until certin its useless
 /* void paging()
 {
 
@@ -394,9 +406,48 @@ bool interupt_boot_test()
 	write_cr0(read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
 } */
 
+void paging()
+{
+
+	u32int page_directory[1024] __attribute__((aligned(4096)));
+
+	//set each entry to not present
+	int i;
+	for (i = 0; i < 1024; i++)
+	{
+		// This sets the following flags to the pages:
+		//   Supervisor: Only kernel-mode can access them
+		//   Write Enabled: It can be both read from and written to
+		//   Not Present: The page table is not present
+		page_directory[i] = 0x00000002;
+	}
+
+	u32int first_page_table[1024] __attribute__((aligned(4096)));
+
+	// holds the physical address where we want to start mapping these pages to.
+	// in this case, we want to map these pages to the very beginning of memory.
+	unsigned int i2;
+
+	//we will fill all 1024 entries in the table, mapping 4 megabytes
+	for (i2 = 0; i2 < 1024; i2++)
+	{
+		// As the address is page aligned, it will always leave 12 bits zeroed.
+		// Those bits are used by the attributes ;)
+		first_page_table[i2] = (i2 * 0x1000) | 3; // attributes: supervisor level, read/write, present.
+	}
+
+	// attributes: supervisor level, read/write, present
+	page_directory[0] = ((unsigned int)first_page_table) | 3;
+
+	loadPageDirectory(page_directory);
+	enablePaging();
+}
+
 // ----- Entry point -----
 void main()
 {
+	init_serial();
+	write_debug_code('0', '0', '0');
 	terminal_initialize();
 
 	disable_cursor();
@@ -411,15 +462,12 @@ void main()
 
 		println("KERNEL PANIC!: INTERRUPT SYSTEM MALFUNCTION ABORTING LAUNCH!", 60);
 
+		write_debug_code('0', '0', '2');
+
 		abort();
 	}
 
-	//uncomment to defuck
 	//paging();
-
-	// yeet to defuck
-	loadPageDirectory();
-	enablePaging();
 
 	/* prim_wait(1000);
 	currently not working right */
@@ -427,6 +475,7 @@ void main()
 	clear_screen();
 	print_message();
 	print_prompt();
+	write_debug_code('0', '0', '1');
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
 	while (1)
 	{
