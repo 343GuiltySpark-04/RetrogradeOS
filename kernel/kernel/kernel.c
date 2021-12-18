@@ -224,8 +224,6 @@ void catch_gp()
 	emg_halt = true;
 }
 
-
-
 void handle_keyboard_interrupt()
 {
 	// Write end of interrupt (EOI)
