@@ -26,9 +26,6 @@
 #define OS_VERSION_LENGTH 5
 #define OS_NAME "RetrogradeOS"
 #define OS_NAME_LENGTH 12
-// Serial Ports
-#define PORT_COM1 0x3f8
-#define PORT_COM2 0x2f8
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
@@ -39,6 +36,7 @@
 #include <kernel/prim_wait.h>
 #include <kernel/check_sti.h>
 #include <common.h>
+#include <kernel/serial_port_driver.h>
 //#include <kernel/outb.h>
 
 // ----- External functions -----
@@ -226,128 +224,7 @@ void catch_gp()
 	emg_halt = true;
 }
 
-// Serial port code
 
-static int init_serial()
-{
-	outb(PORT_COM1 + 1, 0x00); // Disable all interrupts
-	outb(PORT_COM1 + 3, 0x80); // Enable DLAB (set baud rate divisor)
-	outb(PORT_COM1 + 0, 0x03); // Set divisor to 3 (lo byte) 38400 baud
-	outb(PORT_COM1 + 1, 0x00); //                  (hi byte)
-	outb(PORT_COM1 + 3, 0x03); // 8 bits, no parity, one stop bit
-	outb(PORT_COM1 + 2, 0xC7); // Enable FIFO, clear them, with 14-byte threshold
-	outb(PORT_COM1 + 4, 0x0B); // IRQs enabled, RTS/DSR set
-	outb(PORT_COM1 + 4, 0x1E); // Set in loopback mode, test the serial chip
-	outb(PORT_COM1 + 0, 0xAE); // Test serial chip (send byte 0xAE and check if serial returns same byte)
-
-	// Check if serial is faulty (i.e: not same byte as sent)
-	if (inb(PORT_COM1 + 0) != 0xAE)
-	{
-		return 1;
-	}
-
-	// If serial is not faulty set it in normal operation mode
-	// (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
-	outb(PORT_COM1 + 4, 0x0F);
-
-	// init COM2
-	outb(PORT_COM2 + 1, 0x00); // Disable all interrupts
-	outb(PORT_COM2 + 3, 0x80); // Enable DLAB (set baud rate divisor)
-	outb(PORT_COM2 + 0, 0x03); // Set divisor to 3 (lo byte) 38400 baud
-	outb(PORT_COM2 + 1, 0x00); //                  (hi byte)
-	outb(PORT_COM2 + 3, 0x03); // 8 bits, no parity, one stop bit
-	outb(PORT_COM2 + 2, 0xC7); // Enable FIFO, clear them, with 14-byte threshold
-	outb(PORT_COM2 + 4, 0x0B); // IRQs enabled, RTS/DSR set
-	outb(PORT_COM2 + 4, 0x1E); // Set in loopback mode, test the serial chip
-	outb(PORT_COM2 + 0, 0xAE); // Test serial chip (send byte 0xAE and check if serial returns same byte)
-
-	// Check if serial is faulty (i.e: not same byte as sent)
-	if (inb(PORT_COM2 + 0) != 0xAE)
-	{
-		return 1;
-	}
-
-	// If serial is not faulty set it in normal operation mode
-	// (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
-	outb(PORT_COM2 + 4, 0x0F);
-
-	return 0;
-}
-
-int serial_received_COM1()
-{
-
-	return inb(PORT_COM1 + 5) & 1;
-}
-
-int serial_received_COM2()
-{
-
-	return inb(PORT_COM2 + 5) & 1;
-}
-
-char read_serial_COM1()
-{
-
-	while (serial_received_COM1() == 0)
-		;
-
-	return inb(PORT_COM1);
-}
-
-char read_serial_COM2()
-{
-
-	while (serial_received_COM2() == 0)
-		;
-
-	return inb(PORT_COM2);
-}
-
-int is_transmit_empty_COM1()
-{
-
-	return inb(PORT_COM1 + 5) & 0x20;
-}
-
-int is_transmit_empty_COM2()
-{
-
-	return inb(PORT_COM2 + 5) & 0x20;
-}
-
-void write_serial_COM1(char a)
-{
-
-	while (is_transmit_empty_COM1() == 0)
-		;
-
-	outb(PORT_COM1, a);
-}
-
-void write_serial_COM2(char a)
-{
-
-	while (is_transmit_empty_COM2() == 0)
-		;
-
-	outb(PORT_COM2, a);
-}
-
-void write_debug_code(char a, char b, char c)
-{
-
-	while (is_transmit_empty_COM1() == 0)
-		;
-
-	outb(PORT_COM1, '*');
-	outb(PORT_COM1, a);
-	outb(PORT_COM1, b);
-	outb(PORT_COM1, c);
-	outb(PORT_COM1, '*');
-}
-
-// End of serial port code
 
 void handle_keyboard_interrupt()
 {
