@@ -473,8 +473,10 @@ void main(multiboot_info_t *mbd, u32int magic)
 		multiboot_memory_map_t *mmmt =
 			(multiboot_memory_map_t *)(mbd->mmap_addr + i);
 
-		printf("Start Addr: %x | Length: %s | Size: %x | Type: %d\n",
+		printf("Start Addr: %x | Length: %x | Size: %x | Type: %d\n",
 			   mmmt->addr, mmmt->len, mmmt->size, mmmt->type);
+
+		
 
 		if (mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
 		{
