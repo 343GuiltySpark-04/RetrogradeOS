@@ -4,3 +4,5 @@ CODE #  |   Descripton
 001     |   Kernel bootup nominal
 002     |   Failure of interupt system
 003     |   Serial Port COM1 test from console
+004     |   Interupt's enabled
+005     |   Lower memory check done
