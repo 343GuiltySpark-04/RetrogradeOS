@@ -486,12 +486,11 @@ void mem(multiboot_info_t *mbd, u32int magic)
 // ----- Entry point -----
 void main(multiboot_info_t *mbd, u32int magic)
 {
+
 	init_serial();
-	write_debug_code('0', '0', '0');
-	terminal_initialize();
 
 	/* Make sure the magic number matches for memory mapping*/
-	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+	if (0x2BADB002 != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		write_debug_code('0', '0', '5');
 		abort();
@@ -525,6 +524,10 @@ void main(multiboot_info_t *mbd, u32int magic)
              */
 		}
 	}
+
+	//init_serial();
+	write_debug_code('0', '0', '0');
+	terminal_initialize();
 
 	disable_cursor();
 	init_idt();
