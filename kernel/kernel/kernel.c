@@ -37,6 +37,7 @@
 #include <kernel/check_sti.h>
 #include <common.h>
 #include <kernel/serial_port_driver.h>
+#include <kernel/multiboot.h>
 //#include <kernel/outb.h>
 
 // ----- External functions -----
