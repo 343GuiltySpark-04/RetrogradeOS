@@ -482,9 +482,11 @@ void main(multiboot_info_t *mbd, u32int magic)
 		printf("Start Addr: %x | Length: %x | Size: %x | Type: %d\n",
 			   mmmt->addr, mmmt->len, mmmt->size, mmmt->type);
 
-		char a = mmmt;
+		
 
-		printf(a);
+		//breakpoint();
+
+		
 
 		if (mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
 		{
