@@ -490,7 +490,7 @@ void main(multiboot_info_t *mbd, u32int magic)
 	init_serial();
 
 	/* Make sure the magic number matches for memory mapping*/
-	if (0x2BADB002 != MULTIBOOT_BOOTLOADER_MAGIC)
+	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		write_debug_code('0', '0', '5');
 		abort();
