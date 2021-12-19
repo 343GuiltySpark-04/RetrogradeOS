@@ -225,6 +225,12 @@ void catch_gp()
 	emg_halt = true;
 }
 
+void breakpoint()
+{
+
+	asm volatile("1: jmp 1b");
+}
+
 void handle_keyboard_interrupt()
 {
 	// Write end of interrupt (EOI)
@@ -476,7 +482,9 @@ void main(multiboot_info_t *mbd, u32int magic)
 		printf("Start Addr: %x | Length: %x | Size: %x | Type: %d\n",
 			   mmmt->addr, mmmt->len, mmmt->size, mmmt->type);
 
-		
+		char a = mmmt;
+
+		printf(a);
 
 		if (mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
 		{
