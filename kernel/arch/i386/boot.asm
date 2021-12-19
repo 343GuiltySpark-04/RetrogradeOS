@@ -23,7 +23,6 @@ global ioport_out
 global enable_interrupts
 global halt
 global asm_loop
-global mem
 
 
 extern main			; Defined in kernel.c
@@ -63,12 +62,6 @@ halt:
 asm_loop:
 	jmp $ ; incase its ever needed.
 
-
-mem:
-	clc
-	int 0x12
-	jcc
-	ret
 
 
 ioport_in:

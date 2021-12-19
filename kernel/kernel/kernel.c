@@ -52,7 +52,6 @@ extern void reboot();
 extern void loadPageDirectory(unsigned int *);
 extern void enablePaging();
 extern u32int endkernel;
-extern void mem();
 
 // ----- Structs -----
 struct IDT_pointer
@@ -457,8 +456,6 @@ void main()
 	gp_init();
 	enable_interrupts();
 	write_debug_code('0', '0', '4');
-	mem();
-	write_debug_code('0', '0', '5');
 	bool interupt_test = interupt_boot_test();
 
 	if (interupt_test == false)
