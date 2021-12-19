@@ -444,53 +444,15 @@ void paging()
 	enablePaging();
 }
 
-void mem(multiboot_info_t *mbd, u32int magic)
-{
-	/* Make sure the magic number matches for memory mapping*/
-	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
-	{
-		write_debug_code('0', '0', '5');
-		abort();
-	}
-
-	/* Check bit 6 to see if we have a valid memory map */
-	if (!(mbd->flags >> 6 & 0x1))
-	{
-		write_debug_code('0', '0', '6');
-		abort();
-	}
-
-	/* Loop through the memory map and display the values */
-	int i;
-	for (i = 0; i < mbd->mmap_length;
-		 i += sizeof(multiboot_memory_map_t))
-	{
-		multiboot_memory_map_t *mmmt =
-			(multiboot_memory_map_t *)(mbd->mmap_addr + i);
-
-		printf("Start Addr: %x | Length: %x | Size: %x | Type: %d\n",
-			   mmmt->addr, mmmt->len, mmmt->size, mmmt->type);
-
-		if (mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
-		{
-			/* 
-             * Do something with this memory block!
-             * BE WARNED that some of memory shown as availiable is actually 
-             * actively being used by the kernel! You'll need to take that
-             * into account before writing to memory!
-             */
-		}
-	}
-}
-
 // ----- Entry point -----
 void main(multiboot_info_t *mbd, u32int magic)
 {
 
 	init_serial();
+	terminal_initialize();
 
 	/* Make sure the magic number matches for memory mapping*/
-	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+	if (0x2BADB002 != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		write_debug_code('0', '0', '5');
 		abort();
@@ -511,7 +473,7 @@ void main(multiboot_info_t *mbd, u32int magic)
 		multiboot_memory_map_t *mmmt =
 			(multiboot_memory_map_t *)(mbd->mmap_addr + i);
 
-		printf("Start Addr: %x | Length: %x | Size: %x | Type: %d\n",
+		printf("Start Addr: %x | Length: %s | Size: %x | Type: %d\n",
 			   mmmt->addr, mmmt->len, mmmt->size, mmmt->type);
 
 		if (mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
@@ -527,7 +489,7 @@ void main(multiboot_info_t *mbd, u32int magic)
 
 	//init_serial();
 	write_debug_code('0', '0', '0');
-	terminal_initialize();
+	//terminal_initialize();
 
 	disable_cursor();
 	init_idt();
@@ -552,9 +514,9 @@ void main(multiboot_info_t *mbd, u32int magic)
 	/* prim_wait(1000);
 	currently not working right */
 
-	clear_screen();
-	print_message();
-	print_prompt();
+	//clear_screen();
+	//print_message();
+	//print_prompt();
 	write_debug_code('0', '0', '1');
 	// Finish main execution, but don't halt the CPU. Same as `jmp $` in assembly
 	while (1)

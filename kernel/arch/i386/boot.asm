@@ -109,6 +109,8 @@ start:
 	mov esp, stack_space        ; set stack pointer
 	cli				; Disable interrupts
 	mov esp, stack_space
+	push eax
+	push ebx
 	call main
 	hlt
 
