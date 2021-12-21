@@ -1,6 +1,6 @@
 
 
-/* sourcce code from https://github.com/LittleCodingFox/ToastOS/blob/master/src/low-level/paging/Paging.hpp 
+/* source code from https://github.com/LittleCodingFox/ToastOS/blob/master/src/low-level/paging/Paging.hpp 
 with some modifactions fo x86 */
 
 #pragma once
@@ -13,6 +13,8 @@ with some modifactions fo x86 */
 #define PAGE_ADDRESS_MASK (~(PAGE_FLAG_MASK))
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 inline uint32_t TranslateToHighHalfMemoryAddress(uint32_t physicalAddress)
 {
@@ -53,13 +55,13 @@ enum PagingFlag
     PAGING_FLAG_NO_EXECUTE = (1ull << 63),
 };
 
-struct PageTableOffset
+typedef struct 
 {
     uint32_t p4Offset;
     uint32_t pdpOffset;
     uint32_t pdOffset;
     uint32_t ptOffset;
-};
+} PageTableOffset;
 
 struct PageTable
 {
