@@ -276,7 +276,7 @@ void handle_keyboard_interrupt()
 				println("WIP: not working yet.", 21);
 			}
 
-			else if (streq(command_buffer, command_len, "info", 4))
+			else if (streq(command_buffer, command_len, "uname", 5))
 			{
 
 				cursor_col += print_offset;
