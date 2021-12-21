@@ -1,3 +1,7 @@
+
+/* source code from https://github.com/LittleCodingFox/ToastOS/blob/master/src/low-level/Bitmap.hpp
+with some modifactions fo x86 and ported to C */
+
 #pragma once
 #ifndef BITMAP_H
 #include <stddef.h>
