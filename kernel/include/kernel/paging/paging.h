@@ -14,34 +14,59 @@ with some modifactions fo x86 */
 
 #include <stdint.h>
 
-inline uint64_t TranslateToHighHalfMemoryAddress(uint64_t physicalAddress)
+inline uint32_t TranslateToHighHalfMemoryAddress(uint32_t physicalAddress)
 {
     return physicalAddress + HIGHER_HALF_MEMORY_OFFSET;
 }
 
-inline uint64_t TranslateToPhysicalMemoryAddress(uint64_t virtualAddress)
+inline uint32_t TranslateToPhysicalMemoryAddress(uint32_t virtualAddress)
 {
     return virtualAddress - HIGHER_HALF_MEMORY_OFFSET;
 }
 
-inline uint64_t TranslateToKernelPhysicalMemoryAddress(uint64_t virtualAddress)
+inline uint32_t TranslateToKernelPhysicalMemoryAddress(uint32_t virtualAddress)
 {
     return virtualAddress - HIGHER_HALF_KERNEL_MEMORY_OFFSET;
 }
 
-inline uint64_t TranslateToKernelMemoryAddress(uint64_t virtualAddress)
+inline uint32_t TranslateToKernelMemoryAddress(uint32_t virtualAddress)
 {
     return virtualAddress + HIGHER_HALF_KERNEL_MEMORY_OFFSET;
 }
 
-inline bool IsHigherHalf(uint64_t physicalAddress)
+inline bool IsHigherHalf(uint32_t physicalAddress)
 {
     return physicalAddress >= HIGHER_HALF_MEMORY_OFFSET;
 }
 
-inline bool IsKernelHigherHalf(uint64_t physicalAddress)
+inline bool IsKernelHigherHalf(uint32_t physicalAddress)
 {
     return physicalAddress >= HIGHER_HALF_KERNEL_MEMORY_OFFSET;
 }
+
+enum PagingFlag
+{
+    PAGING_FLAG_PRESENT = (1ull << 0),
+    PAGING_FLAG_WRITABLE = (1ull << 1),
+    PAGING_FLAG_USER_ACCESSIBLE = (1ull << 2),
+    PAGING_FLAG_LARGER_PAGES = (1ull << 7),
+    PAGING_FLAG_NO_EXECUTE = (1ull << 63),
+};
+
+struct PageTableOffset
+{
+    uint32_t p4Offset;
+    uint32_t pdpOffset;
+    uint32_t pdOffset;
+    uint32_t ptOffset;
+};
+
+struct PageTable
+{
+    uint32_t entries[512];
+} __attribute__((aligned(0x1000)));
+
+PageTableOffset VirtualAddressToOffsets(void *address);
+void *OffsetToVirtualAddress(PageTableOffset offset);
 
 #endif
