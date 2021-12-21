@@ -26,6 +26,8 @@
 #define OS_VERSION_LENGTH 5
 #define OS_NAME "RetrogradeOS"
 #define OS_NAME_LENGTH 12
+#define OS_ARCH_TYPE "x86"
+#define OS_ARCH_TYPE_LENGTH 3
 
 // ----- Includes -----
 #include <kernel/keyboard_map.h>
@@ -286,6 +288,11 @@ void handle_keyboard_interrupt()
 				cursor_col += print_offset;
 				print("Version: ", 9);
 				print(OS_VERSION, OS_VERSION_LENGTH);
+				cursor_row++;
+				cursor_col = 0;
+				cursor_col += print_offset;
+				print("Arch: ", 6);
+				print(OS_ARCH_TYPE, OS_ARCH_TYPE_LENGTH);
 				cursor_row++;
 			}
 
